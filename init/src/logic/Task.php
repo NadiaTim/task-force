@@ -2,6 +2,11 @@
 
 namespace TaskForce\logic;
 
+use TaskForce\logic\actions\CancelAction;
+use TaskForce\logic\actions\CompletedAction;
+use TaskForce\logic\actions\RefuseAction;
+use TaskForce\logic\actions\RespondAction;
+
 class Task
 {
     //определять список возможных действий и статусов
@@ -13,27 +18,25 @@ class Task
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
 
-    //действия
-    const ACTION_CANCEL = 'cancel';
-    const ACTION_RESPOND = 'respond';
-    const ACTION_COMPLETED = 'completed';
-    const ACTION_REFUSE = 'refuse';
+    //роли
+    const ROLE_CLIENT = 'client';
+    const ROLE_EXECUTOR = 'executor';
 
     private ?int $idExecutor;
-    private int $idСlient;
+    private int $idClient;
 
     private $currentStatus;
 
 
     /**
      * Конструктор класса
-     * @param int $idСlient
+     * @param int $idClient
      * @param string $currentStatus
      * @param int|null $idExecutor
      */
-    public function __construct(int $idСlient, string $currentStatus = 'new', ?int $idExecutor = null)
+    public function __construct(int $idClient, string $currentStatus = 'new', ?int $idExecutor = null)
     {
-        $this->idСlient = $idСlient;
+        $this->idClient = $idClient;
         $this->setStatus($currentStatus);
         $this->idExecutor = $idExecutor;
     }
@@ -50,20 +53,6 @@ class Task
             self::STATUS_AT_WORK => 'В работе',
             self::STATUS_COMPLETED => 'Выполнено',
             self::STATUS_FAILED => 'Провалено',
-        ];
-    }
-
-    /**
-     * получаем ассоциативный масссив действий (ключ-внутреннее имя, значение - название действия на русском)
-     * @return string[]
-     */
-    public function getActionMap(): array
-    {
-        return [
-            self::ACTION_CANCEL => 'Отменить',
-            self::ACTION_RESPOND => 'Откликнуться',
-            self::ACTION_COMPLETED => 'Выполнено',
-            self::ACTION_REFUSE => 'Отказаться',
         ];
     }
 
@@ -87,18 +76,32 @@ class Task
         }
     }
 
+    public function getAvalableAction(string $role, int $id)
+    {
+        //
+        $statusActions = $this->availableActionOfStatus($this->currentStatus);
+        $roleActions = $this->availableActionOfRole($role);
+        $allowedActions = array_intersect($statusActions, $roleActions);
+        $allowedActions = array_filter($allowedActions, function ($action) use ($id) {
+            return $action::isAvalableAction($id, $this->idExecutor, $this->idClient);
+        });
+
+        return array_values($allowedActions);
+    }
+
     /**
      * получаем следующий статус в соответствии с переданным действием
-     * @param string $action
+     * @param string $action абсолютное имя класса из пространства имен 
+     * (Например для CancelAction::class - TaskForce\logic\actions\CancelAction)
      * @return string|null
      */
     public function getNextStatus(string $action): ?string
     {
         $map = [
-            self::ACTION_CANCEL => self::STATUS_CANCELLED,
-            self::ACTION_RESPOND => self::STATUS_AT_WORK,
-            self::ACTION_COMPLETED => self::STATUS_COMPLETED,
-            self::ACTION_REFUSE => self::STATUS_FAILED
+            CancelAction::class => self::STATUS_CANCELLED,
+            RespondAction::class => self::STATUS_AT_WORK,
+            CompletedAction::class => self::STATUS_COMPLETED,
+            RefuseAction::class => self::STATUS_FAILED
         ];
 
         return $map[$action] ?? null;
@@ -109,19 +112,40 @@ class Task
      * @param string $status
      * @return array
      */
-    private function getAvailableStatus(string $status): array
+    private function availableActionOfStatus(string $status): array
     {
         $map = [
             self::STATUS_NEW => [
-                self::ACTION_CANCEL,
-                self::ACTION_RESPOND
+                CancelAction::class,
+                RespondAction::class
             ],
             self::STATUS_AT_WORK => [
-                self::ACTION_COMPLETED,
-                self::ACTION_REFUSE
+                CompletedAction::class,
+                RefuseAction::class
             ]
         ];
 
         return $map[$status] ?? [];
+    }
+
+    /**
+     * определяет список доступных действий для указанной роли
+     * @param string $role
+     * @return array
+     */
+    private function availableActionOfRole(string $role): array
+    {
+        $map = [
+            self::ROLE_CLIENT => [
+                CancelAction::class,
+                CompletedAction::class
+            ],
+            self::ROLE_EXECUTOR => [
+                RespondAction::class,
+                RefuseAction::class
+            ]
+        ];
+
+        return $map[$role] ?? [];
     }
 }
