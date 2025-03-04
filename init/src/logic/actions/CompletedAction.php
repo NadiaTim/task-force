@@ -12,7 +12,7 @@ class CompletedAction extends AbstractAction
     {
         return "completed";
     }
-    public static function isAvalableAction(int $userid, int $executorId, int $ownerId): bool
+    public static function isAvalableAction(int $userid, ?int $executorId, ?int $ownerId): bool
     {
         return $userid === $ownerId;
     }
