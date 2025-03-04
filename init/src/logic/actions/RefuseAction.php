@@ -12,7 +12,7 @@ class RefuseAction extends AbstractAction
     {
         return "refuse";
     }
-    public static function isAvalableAction(int $userid, int $executorId, int $ownerId): bool
+    public static function isAvalableAction(int $userid, ?int $executorId, ?int $ownerId): bool
     {
         return $userid === $executorId;
     }

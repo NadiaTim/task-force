@@ -12,7 +12,7 @@ class RespondAction extends AbstractAction
     {
         return "respond";
     }
-    public static function isAvalableAction(int $userid, int $executorId, int $ownerId): bool
+    public static function isAvalableAction(int $userid, ?int $executorId, ?int $ownerId): bool
     {
         return $userid !== $ownerId;
     }

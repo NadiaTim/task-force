@@ -2,10 +2,13 @@
 
 namespace TaskForce\logic;
 
+use TaskForce\exceptions\ExistenceException;
+use TaskForce\logic\actions\AbstractAction;
 use TaskForce\logic\actions\CancelAction;
 use TaskForce\logic\actions\CompletedAction;
 use TaskForce\logic\actions\RefuseAction;
 use TaskForce\logic\actions\RespondAction;
+
 
 class Task
 {
@@ -33,6 +36,7 @@ class Task
      * @param int $idClient
      * @param string $currentStatus
      * @param int|null $idExecutor
+     * @throws ExistenceException
      */
     public function __construct(int $idClient, string $currentStatus = 'new', ?int $idExecutor = null)
     {
@@ -71,14 +75,34 @@ class Task
             self::STATUS_COMPLETED,
             self::STATUS_FAILED
         ];
-        if (in_array($status, $availableStatuses)) {
-            $this->currentStatus = $status;
+        if (!in_array($status, $availableStatuses)) {
+            throw new ExistenceException("Неизвесный статус $status");
+        }
+        $this->currentStatus = $status;
+    }
+
+    private function checkRole(string $role): void
+    {
+        $availableRoles = [
+            self::ROLE_CLIENT,
+            self::ROLE_EXECUTOR
+        ];
+        if (!in_array($role, $availableRoles)) {
+            throw new ExistenceException("Неизвестная роль $role");
         }
     }
 
-    public function getAvalableAction(string $role, int $id)
+    /**
+     * Выводит список допустимых действий для текущего пользователя
+     * В соответствии с актуальным статусом задания, роли пользователя и владения задания
+     * @param string $role Одна из допустимых ролей
+     * @param int $id  Идентификатор текущего пользователя из системы
+     * @return array Массив допустимых дейчтвий в виде адреса используемого класса из namespace
+     * @throws ExistenceException
+     */
+    public function getAvalableAction(string $role, int $id): array
     {
-        //
+        $this->checkRole($role);
         $statusActions = $this->availableActionOfStatus($this->currentStatus);
         $roleActions = $this->availableActionOfRole($role);
         $allowedActions = array_intersect($statusActions, $roleActions);
@@ -91,11 +115,10 @@ class Task
 
     /**
      * получаем следующий статус в соответствии с переданным действием
-     * @param string $action абсолютное имя класса из пространства имен 
-     * (Например для CancelAction::class - TaskForce\logic\actions\CancelAction)
+     * @param object AbstractAction $action объект класса-действия, наследник абстрактного класса-действия
      * @return string|null
      */
-    public function getNextStatus(string $action): ?string
+    public function getNextStatus(AbstractAction $action): ?string
     {
         $map = [
             CancelAction::class => self::STATUS_CANCELLED,
@@ -104,7 +127,7 @@ class Task
             RefuseAction::class => self::STATUS_FAILED
         ];
 
-        return $map[$action] ?? null;
+        return $map[get_class($action)] ?? null;
     }
 
     /**
