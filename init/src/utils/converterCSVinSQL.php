@@ -8,6 +8,11 @@ use FilesystemIterator;
 use SplFileInfo;
 use SplFileObject;
 
+/*
+Возможно доработка:
+Передача иной имени таблицы
+Передача иных имен столбцов
+*/
 
 class converterCSVinSQL
 {
@@ -16,18 +21,28 @@ class converterCSVinSQL
      */
     private ?array $filesToConvertCSV = null;
     private ?SplFileInfo $fileInfo = null;
+    /**
+     * @var string[]
+     */
     private ?array $convertedFiles = null;
 
-    public function getFilesArray(): ?array
+    /**
+     * Отображает файлы, выбранные к обработке
+     * @return SplFileInfo[] | SplFileInfo объект или массив объектов-файлов
+     */
+    public function getFilesArray(): array | SplFileInfo
     {
-        return $this->filesToConvertCSV;
+        return ($this->filesToConvertCSV) ?? $this->fileInfo;
     }
 
     /**
      * Конструктор класса
      * @param string $directory адрес к папке с данными для таблиц БД или файлу
+     * @throws ConvertionException, если неверный формат файла или неверная дирректория
+     * @throws UnexpectedValueException, если директория directory не существует
+     * @throws ValueError, если параметр directory содержит пустую строку или дирректория для выходных данных не существует
      */
-    public function __construct(string $directory)
+    public function __construct(string $directory): void
     {
         //
         echo $directory . PHP_EOL;
@@ -44,7 +59,13 @@ class converterCSVinSQL
         }
     }
 
-    public function formSQLFiles(?string $outputDirectory): void
+    /**
+     * Обрабатывает с конвертирует файл(ы) в указанную директорию
+     * @param ?string $outputDirectory Путь к папке, в которую произойдет конвертация
+     * @return array Массив путей к итоговым сконвертированным файлам
+     * @throws ConvertionException, если не удается открыть файл
+     */
+    public function formSQLFiles(?string $outputDirectory): array
     {
         if (isset($this->filesToConvertCSV)) {
             if (!isset($outputDirectory) || !is_dir($outputDirectory)) {
@@ -61,9 +82,12 @@ class converterCSVinSQL
         }
 
         $this->convertedFiles = $result;
-        //return $result;
+        return $result;
     }
 
+    /**
+     * Функция вывода результата конвертации
+     */
     public function printConvertionResult(): void
     {
         if ($this->convertedFiles) {
@@ -80,8 +104,6 @@ class converterCSVinSQL
     /**
      * Получаем все CSV файлы из указанной дирректории и записываем в массив
      * @param string $directory адрес к папке с данными для таблиц БД
-     * @return array[SplFileInfo] массив найденых файлов в виде экземпляров класса SplFileInfo
-     * 
      * @throws UnexpectedValueException, если директория directory не существует
      * @throws ValueError, если параметр directory содержит пустую строку
      */
@@ -95,14 +117,15 @@ class converterCSVinSQL
         }
     }
 
+    /**
+     * Конвертация файла
+     * @param SplFileInfo $file объект файла для конвертации
+     * @param ?string $outputDirectory путь к дирректории для вставки файла, если нет то будет вставлен в исходную
+     * @return string имя и путь сформированного файла
+     */
     private function convertFile(SplFileInfo $file, ?string $outputDirectory): string
     {
-        //открываем файл
-        //ЕСЛИ ФАЙЛ НЕ ОТКРЫВАЕТСЯ ТО ИСКЛЮЧЕНИЕ
         try {
-            /**
-             * @var SplFileObject
-             */
             $fileObject = new SplFileObject($file->getRealPath());
             $fileObject->setFlags(SplFileObject::READ_CSV);
         } catch (RuntimeException $exception) {
@@ -123,6 +146,13 @@ class converterCSVinSQL
         return $this->saveSqlContent($tableName, $outputDirectory, $sqlContent);
     }
 
+    /**
+     * Формирование sql-запроса
+     * @param string $tableName
+     * @param array $columns
+     * @param array $data
+     * @return string строка sql-запроса
+     */
     private function getSqlContent(string $tableName, array $columns, array $data): string
     {
         $columnsString = implode(', ', $columns);
@@ -142,6 +172,13 @@ class converterCSVinSQL
         return $sql;
     }
 
+    /**
+     * Формирование файла и сохраниение SQL
+     * @param string $tableName имя таблицы, которое станет названием файла
+     * @param string $directory Путь для сохранения файла
+     * @param string $content Содержитое файла
+     * @return string имя и путь сформированного файла
+     */
     private function saveSqlContent(string $tableName, string $directory, string $content): string
     {
         if (!is_dir($directory)) {
