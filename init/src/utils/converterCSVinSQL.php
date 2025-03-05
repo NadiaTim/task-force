@@ -14,38 +14,66 @@ class converterCSVinSQL
     /**
      * @var SplFileInfo[]
      */
-    private array $filesToConvertCSV;
+    private ?array $filesToConvertCSV = null;
+    private ?SplFileInfo $fileInfo = null;
+    private ?array $convertedFiles = null;
 
-    public function getFilesArray(): array
+    public function getFilesArray(): ?array
     {
         return $this->filesToConvertCSV;
     }
 
     /**
      * Конструктор класса
-     * @param string $directory адрес к папке с данными для таблиц БД
+     * @param string $directory адрес к папке с данными для таблиц БД или файлу
      */
     public function __construct(string $directory)
     {
         //
         echo $directory . PHP_EOL;
-        if (!is_dir($directory)) {
+        if (is_dir($directory)) {
+            $this->getCSVFiles($directory);
+        } else if (is_file($directory)) {
+            $fileinfo = new SplFileInfo($directory);
+            if ($fileinfo->getExtension() !== "csv") {
+                throw new ConvertionException('Выбран файл неверного формата');
+            }
+            $this->fileInfo = $fileinfo;
+        } else {
             throw new ConvertionException('Директория указана не верно.');
         }
-        $this->getCSVFiles($directory);
     }
 
-    public function formSQLFiles(?string $outputDirectory): array
+    public function formSQLFiles(?string $outputDirectory): void
     {
-        $result = [];
-        if (!isset($outputDirectory) || !is_dir($outputDirectory)) {
-            $outputDirectory = $this->filesToConvertCSV[0]->getPath();
+        if (isset($this->filesToConvertCSV)) {
+            if (!isset($outputDirectory) || !is_dir($outputDirectory)) {
+                $outputDirectory = $this->filesToConvertCSV[0]->getPath();
+            }
+            foreach ($this->filesToConvertCSV as $file) {
+                $result[] = $this->convertFile($file, $outputDirectory);
+            }
+        } else {
+            if (!isset($outputDirectory) || !is_dir($outputDirectory)) {
+                $outputDirectory = $this->fileInfo->getPath();
+            }
+            $result[] = $this->convertFile($this->fileInfo, $outputDirectory);
         }
-        echo $outputDirectory . PHP_EOL;
-        foreach ($this->filesToConvertCSV as $file) {
-            $result[] = $this->convertFile($file, $outputDirectory);
+
+        $this->convertedFiles = $result;
+        //return $result;
+    }
+
+    public function printConvertionResult(): void
+    {
+        if ($this->convertedFiles) {
+            echo "Сконвертированы новые файлы:" . PHP_EOL;
+            foreach ($this->convertedFiles as $convertedFile) {
+                echo "Путь нового файла:" . $convertedFile . PHP_EOL;
+            }
+        } else {
+            echo "Нет сконвертированных файлов" . PHP_EOL;
         }
-        return $result;
     }
 
 
@@ -59,7 +87,6 @@ class converterCSVinSQL
      */
     private function getCSVFiles(string $directory): void
     {
-
         $iterator = new FilesystemIterator($directory, FilesystemIterator::CURRENT_AS_FILEINFO);
         foreach ($iterator as $fileinfo) {
             if ($fileinfo->getExtension() === "csv") {
