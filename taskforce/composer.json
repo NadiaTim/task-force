@@ -69,5 +69,16 @@
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
-    ]
+    ],
+    "authors": [
+        {
+            "name": "Timakova Nadezhda",
+            "email": "timakovanadezda0@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "app\\":"src/"
+        }
+    }
 }
