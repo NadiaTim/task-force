@@ -7,8 +7,8 @@ use Yii;
 /**
  * This is the model class for table "job_title".
  *
- * @property int $id_specialization
- * @property string $specialization
+ * @property int $id_job_title
+ * @property string $job_title
  *
  * @property UserJobTitle[] $userJobTitles
  */
@@ -30,8 +30,8 @@ class JobTitle extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['specialization'], 'required'],
-            [['specialization'], 'string', 'max' => 50],
+            [['job_title'], 'required'],
+            [['job_title'], 'string', 'max' => 50],
         ];
     }
 
@@ -41,8 +41,8 @@ class JobTitle extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id_specialization' => 'id специализации',
-            'specialization' => 'специализация',
+            'id_job_title' => 'id специализации',
+            'job_title' => 'специализация',
         ];
     }
 
@@ -53,7 +53,7 @@ class JobTitle extends \yii\db\ActiveRecord
      */
     public function getUserJobTitles()
     {
-        return $this->hasMany(UserJobTitle::class, ['id_specialization' => 'id_specialization']);
+        return $this->hasMany(User::class, ['id_job_title' => 'id_job_title'])->viaTable('user_job_title', ['id_user' => 'id_user']);
     }
 
     /**

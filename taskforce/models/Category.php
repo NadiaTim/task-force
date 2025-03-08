@@ -55,7 +55,7 @@ class Category extends \yii\db\ActiveRecord
      */
     public function getTaskCategories()
     {
-        return $this->hasMany(TaskCategory::class, ['id_category' => 'id_category']);
+        return $this->hasMany(Task::class, ['id_category' => 'id_category'])->viaTable('task_category', ['id_task' => 'id_task']);
     }
 
     /**

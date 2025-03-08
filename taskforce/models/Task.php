@@ -140,7 +140,7 @@ class Task extends \yii\db\ActiveRecord
      */
     public function getTaskCategories()
     {
-        return $this->hasMany(TaskCategory::class, ['id_task' => 'id_task']);
+        return $this->hasMany(Category::class, ['id_task' => 'id_task'])->viaTable('task_category', ['id_category' => 'id_category']);
     }
 
     /**

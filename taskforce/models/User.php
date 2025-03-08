@@ -15,7 +15,7 @@ use Yii;
  * @property string|null $birth
  * @property string $registration
  * @property string|null $telegram
- * @property int|null $id_specialization
+ * @property int|null $id_job_title
  * @property string|null $avatar
  * @property string|null $information
  * @property int $id_role
@@ -47,9 +47,9 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['birth', 'telegram', 'id_specialization', 'avatar', 'information', 'phone'], 'default', 'value' => null],
+            [['birth', 'telegram', 'id_job_title', 'avatar', 'information', 'phone'], 'default', 'value' => null],
             [['name', 'email', 'id_city', 'password', 'registration', 'id_role'], 'required'],
-            [['id_city', 'id_specialization', 'id_role'], 'integer'],
+            [['id_city', 'id_job_title', 'id_role'], 'integer'],
             [['birth', 'registration'], 'safe'],
             [['information'], 'string'],
             [['name', 'avatar'], 'string', 'max' => 50],
@@ -75,7 +75,7 @@ class User extends \yii\db\ActiveRecord
             'birth' => 'дата рождения',
             'registration' => 'дата регистрации',
             'telegram' => 'Telegram',
-            'id_specialization' => 'id специализация',
+            'id_job_title' => 'id специализация',
             'avatar' => 'аватар',
             'information' => 'дополнительная информация',
             'id_role' => 'id роли',
@@ -148,9 +148,9 @@ class User extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
-    public function getUserJobTitles()
+    public function getJobTitles()
     {
-        return $this->hasMany(UserJobTitle::class, ['id_user' => 'id_user']);
+        return $this->hasMany(JobTitle::class, ['id_user' => 'id_user'])->viaTable('user_job_title', ['id_job_title' => 'id_job_title']);
     }
 
     /**
