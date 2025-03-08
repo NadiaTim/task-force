@@ -76,7 +76,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Address]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|AddressQuery
      */
     public function getAddress()
     {
@@ -86,7 +86,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Client]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getClient()
     {
@@ -96,7 +96,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Files]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|FileQuery
      */
     public function getFiles()
     {
@@ -106,7 +106,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Respons]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|ResponsQuery
      */
     public function getRespons()
     {
@@ -116,7 +116,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Reviews]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|ReviewQuery
      */
     public function getReviews()
     {
@@ -126,7 +126,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Status]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|StatusQuery
      */
     public function getStatus()
     {
@@ -136,10 +136,19 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[TaskCategories]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getTaskCategories()
     {
         return $this->hasMany(TaskCategory::class, ['id_task' => 'id_task']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return TaskQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new TaskQuery(get_called_class());
     }
 }

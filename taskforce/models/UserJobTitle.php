@@ -55,7 +55,7 @@ class UserJobTitle extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Specialization]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|JobTitleQuery
      */
     public function getSpecialization()
     {
@@ -65,10 +65,19 @@ class UserJobTitle extends \yii\db\ActiveRecord
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|UserQuery
      */
     public function getUser()
     {
         return $this->hasOne(User::class, ['id_user' => 'id_user']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return UserJobTitleQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new UserJobTitleQuery(get_called_class());
     }
 }

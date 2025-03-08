@@ -59,7 +59,7 @@ class Respons extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Executor]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getExecutor()
     {
@@ -69,10 +69,19 @@ class Respons extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Task]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getTask()
     {
         return $this->hasOne(Task::class, ['id_task' => 'id_task']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return ResponsQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new ResponsQuery(get_called_class());
     }
 }

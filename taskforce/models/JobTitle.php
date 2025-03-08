@@ -49,10 +49,19 @@ class JobTitle extends \yii\db\ActiveRecord
     /**
      * Gets query for [[UserJobTitles]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getUserJobTitles()
     {
         return $this->hasMany(UserJobTitle::class, ['id_specialization' => 'id_specialization']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return JobTitleQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new JobTitleQuery(get_called_class());
     }
 }

@@ -86,7 +86,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[City]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|CityQuery
      */
     public function getCity()
     {
@@ -96,7 +96,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Respons]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|ResponsQuery
      */
     public function getRespons()
     {
@@ -106,7 +106,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Reviews]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|ReviewQuery
      */
     public function getReviews()
     {
@@ -116,7 +116,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Reviews0]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|ReviewQuery
      */
     public function getReviews0()
     {
@@ -126,7 +126,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Role]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|RoleQuery
      */
     public function getRole()
     {
@@ -136,7 +136,7 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tasks]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|TaskQuery
      */
     public function getTasks()
     {
@@ -146,10 +146,19 @@ class User extends \yii\db\ActiveRecord
     /**
      * Gets query for [[UserJobTitles]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getUserJobTitles()
     {
         return $this->hasMany(UserJobTitle::class, ['id_user' => 'id_user']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return UserQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new UserQuery(get_called_class());
     }
 }

@@ -54,7 +54,7 @@ class TaskCategory extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Category]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|CategoryQuery
      */
     public function getCategory()
     {
@@ -64,10 +64,19 @@ class TaskCategory extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Task]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|TaskQuery
      */
     public function getTask()
     {
         return $this->hasOne(Task::class, ['id_task' => 'id_task']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return TaskCategoryQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new TaskCategoryQuery(get_called_class());
     }
 }

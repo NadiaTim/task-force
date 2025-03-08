@@ -67,7 +67,7 @@ class Review extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Commentator]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getCommentator()
     {
@@ -77,7 +77,7 @@ class Review extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Task]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getTask()
     {
@@ -87,10 +87,19 @@ class Review extends \yii\db\ActiveRecord
     /**
      * Gets query for [[User]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getUser()
     {
         return $this->hasOne(User::class, ['id_user' => 'id_user']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return ReviewQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new ReviewQuery(get_called_class());
     }
 }

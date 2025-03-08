@@ -49,10 +49,19 @@ class Status extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tasks]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getTasks()
     {
         return $this->hasMany(Task::class, ['id_status' => 'id_status']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return StatusQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new StatusQuery(get_called_class());
     }
 }

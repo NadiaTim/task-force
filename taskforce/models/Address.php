@@ -58,10 +58,19 @@ class Address extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Tasks]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
     public function getTasks()
     {
         return $this->hasMany(Task::class, ['id_address' => 'id_address']);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return AddressQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new AddressQuery(get_called_class());
     }
 }
