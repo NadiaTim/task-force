@@ -42,6 +42,14 @@ $config = [
             ],
         ],
         'db' => $db,
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'dateFormat' => 'php:d.m.Y',
+            'datetimeFormat' => 'php:j F, H:i',
+            'timeFormat' => 'php:H:i:s',
+            'defaultTimeZone' => 'Europe/Moscow',
+            'locale' => 'ru-RU'
+        ],
         /*
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -52,6 +60,10 @@ $config = [
         */
     ],
     'params' => $params,
+
+    'timeZone' => 'Europe/Moscow',
+    'language' => 'ru-RU',
+
 ];
 
 if (YII_ENV_DEV) {
