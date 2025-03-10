@@ -44,7 +44,7 @@ class Task extends \yii\db\ActiveRecord
     {
         return [
             [['discription', 'price', 'id_address'], 'default', 'value' => null],
-            [['task', 'date_execut', 'id_status', 'id_client'], 'required'],
+            [['task', 'id_status', 'id_client'], 'required'],
             [['discription'], 'string'],
             [['price', 'id_status', 'id_address', 'id_client'], 'integer'],
             [['date_public', 'date_execut'], 'safe'],
@@ -134,13 +134,13 @@ class Task extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[TaskCategories]].
+     * Gets query for [[Categories]].
      *
      * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
-    public function getTaskCategories()
+    public function getCategories()
     {
-        return $this->hasMany(Category::class, ['id_task' => 'id_task'])->viaTable('task_category', ['id_category' => 'id_category']);
+        return $this->hasMany(Category::class, ['id_category' => 'id_category'])->viaTable('task_category', ['id_task' => 'id_task']);
     }
 
     /**

@@ -68,9 +68,7 @@ AppAsset::register($this);
             </div>
         </div>
     </header>
-    <main class="main-content container">
-        <?= $content; ?>
-    </main>
+    <?= $content; ?>
     <?php $this->endBody() ?>
 </body>
 
