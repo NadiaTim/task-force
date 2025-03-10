@@ -49,13 +49,13 @@ class Category extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[TaskCategories]].
+     * Gets query for [[Tasks]].
      *
      * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
      */
-    public function getTaskCategories()
+    public function getTasks()
     {
-        return $this->hasMany(Task::class, ['id_category' => 'id_category'])->viaTable('task_category', ['id_task' => 'id_task']);
+        return $this->hasMany(Task::class, ['id_task' => 'id_task'])->viaTable('task_category', ['id_category' => 'id_category']);
     }
 
     /**
