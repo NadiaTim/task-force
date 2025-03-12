@@ -9,6 +9,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\widgets\LinkPager;
 
 $this->title = 'Новые задания';
 ?>
@@ -47,23 +48,18 @@ $this->title = 'Новые задания';
         <?php endif; ?>
 
         <div class="pagination-wrapper">
-            <ul class="pagination-list">
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">1</a>
-                </li>
-                <li class="pagination-item pagination-item--active">
-                    <a href="#" class="link link--page">2</a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">3</a>
-                </li>
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-            </ul>
+            <?= LinkPager::widget([
+                'pagination' => $pages,
+                'prevPageCssClass' => 'pagination-item mark',
+                'nextPageCssClass' => 'pagination-item mark',
+                'pageCssClass' => 'pagination-item',
+                'activePageCssClass' => 'pagination-item--active',
+                'linkOptions' => ['class' => 'link link--page'],
+                'options' => ['class' => 'pagination-list'],
+                'nextPageLabel' => '',
+                'prevPageLabel' => '',
+                'maxButtonCount' => 5
+            ]); ?>
         </div>
     </div>
     <div class="right-column">

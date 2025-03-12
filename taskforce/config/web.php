@@ -57,12 +57,8 @@ $config = [
             //false позволяет 
             'enableStrictParsing' => true,
             'rules' => [
-                //Поддержка URL вида /tasks/show/12
-                '//' => '/',
                 //Показ списка заданий под алиасом tasks;
                 'tasks' => 'tasks/index',
-                //Показ отфильтрованных контактов под маршрутом /contacts/status/<status>
-                'tasks/status/' => 'contacts/filter',
             ],
         ],
     ],

@@ -2,9 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\Task;
 use app\models\Category;
 use yii\web\Controller;
-use app\models\Task;
+use yii\data\Pagination;
 
 class TasksController extends Controller
 {
@@ -26,12 +27,26 @@ class TasksController extends Controller
 
         //Формируем запрос
         $tasksQuery = $task->getTaskListQuery();
+
         //реализуем пагинацию
+        $countQuery = clone $tasksQuery;
+        $pages = new Pagination([
+            'totalCount' => $countQuery->count(),
+            'pageSize' => 1,
+            'pageSizeParam' => false
+        ]);
 
         //выводим список всех записей
-        $tasks = $tasksQuery->all();
+        $tasks = $tasksQuery->offset($pages->offset)
+            ->limit($pages->limit)
+            ->all();
 
 
-        return $this->render('index.php', ['models' => $tasks, 'task' => $task, 'categories' => $categories]);
+        return $this->render('index.php', [
+            'models' => $tasks,
+            'task' => $task,
+            'categories' => $categories,
+            'pages' => $pages
+        ]);
     }
 }
