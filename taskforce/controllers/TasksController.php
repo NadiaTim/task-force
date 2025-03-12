@@ -32,7 +32,7 @@ class TasksController extends Controller
         $countQuery = clone $tasksQuery;
         $pages = new Pagination([
             'totalCount' => $countQuery->count(),
-            'pageSize' => 1,
+            'pageSize' => 5,
             'pageSizeParam' => false
         ]);
 
