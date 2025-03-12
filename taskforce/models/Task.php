@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
 
 /**
  * This is the model class for table "task".
@@ -27,7 +28,13 @@ use Yii;
  */
 class Task extends \yii\db\ActiveRecord
 {
-
+    /**
+     * виртуальные свойства для хранения данных из формы
+     */
+    public $id_category;
+    public $is_without_executor;
+    public $is_without_location;
+    public $filter_period;
 
     /**
      * {@inheritdoc}
@@ -43,6 +50,9 @@ class Task extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['is_without_executor', 'is_without_location'], 'boolean'],
+            [['filter_period'], 'number'],
+            [['id_category'], 'integer'],
             [['discription', 'price', 'id_address'], 'default', 'value' => null],
             [['task', 'id_status', 'id_client'], 'required'],
             [['discription'], 'string'],
@@ -70,13 +80,15 @@ class Task extends \yii\db\ActiveRecord
             'id_status' => 'id статуса',
             'id_address' => 'id адреса',
             'id_client' => 'id владельца',
+            'is_without_executor' => 'Без откликов',
+            'is_without_location' => 'Удаленная работа',
         ];
     }
 
     /**
      * Gets query for [[Address]].
      *
-     * @return \yii\db\ActiveQuery|AddressQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getAddress()
     {
@@ -86,7 +98,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Client]].
      *
-     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getClient()
     {
@@ -96,7 +108,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Files]].
      *
-     * @return \yii\db\ActiveQuery|FileQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getFiles()
     {
@@ -106,7 +118,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Respons]].
      *
-     * @return \yii\db\ActiveQuery|ResponsQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getRespons()
     {
@@ -116,7 +128,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Reviews]].
      *
-     * @return \yii\db\ActiveQuery|ReviewQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getReviews()
     {
@@ -126,7 +138,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Status]].
      *
-     * @return \yii\db\ActiveQuery|StatusQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getStatus()
     {
@@ -136,19 +148,29 @@ class Task extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Categories]].
      *
-     * @return \yii\db\ActiveQuery|yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getCategories()
     {
         return $this->hasMany(Category::class, ['id_category' => 'id_category'])->viaTable('task_category', ['id_task' => 'id_task']);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return TaskQuery the active query used by this AR class.
-     */
-    public static function find()
+    public function getTaskListQuery()
     {
-        return new TaskQuery(get_called_class());
+        $query = self::find()
+            ->filterWhere(['id_status' => 1])
+            ->joinWith('categories', 'address')
+            ->andFilterWhere(['category.id_category' => $this->id_category])
+            ->andFilterWhere(['id_address' => $this->id_address]);
+        if ($this->is_without_executor) {
+            $query->With('responce r')
+                ->andWhere('r.id_response IS NULL');
+        }
+        if ($this->filter_period) {
+            $query->andWhere(
+                '(unix_timestamp(task.date_public) > (unix_timestamp () - 604800))'
+            );
+        }
+        return $query->addOrderBy(['date_public' => SORT_DESC]);
     }
 }

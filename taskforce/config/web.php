@@ -50,14 +50,17 @@ $config = [
             'defaultTimeZone' => 'Europe/Moscow',
             'locale' => 'ru-RU'
         ],
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+            //true выводит yii\web\NotFoundHttpException, при отсутствии обработки случая в правилах
+            //false позволяет 
+            'enableStrictParsing' => true,
             'rules' => [
+                //Показ списка заданий под алиасом tasks;
+                'tasks' => 'tasks/index',
             ],
         ],
-        */
     ],
     'params' => $params,
 

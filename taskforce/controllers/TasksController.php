@@ -2,8 +2,10 @@
 
 namespace app\controllers;
 
-use yii\web\Controller;
 use app\models\Task;
+use app\models\Category;
+use yii\web\Controller;
+use yii\data\Pagination;
 
 class TasksController extends Controller
 {
@@ -15,13 +17,36 @@ class TasksController extends Controller
      */
     public function actionIndex()
     {
-        $tasks = Task::find()
-            ->filterWhere(['id_status' => 1])
-            ->With('categories', 'address')
-            ->addOrderBy(['date_public' => SORT_DESC])
+        //создаем модель
+        $task = new Task();
+        //передаем данные из формы
+        $task->load(\Yii::$app->request->post());
+
+        //определяем список всех категорий
+        $categories = Category::find()->all();
+
+        //Формируем запрос
+        $tasksQuery = $task->getTaskListQuery();
+
+        //реализуем пагинацию
+        $countQuery = clone $tasksQuery;
+        $pages = new Pagination([
+            'totalCount' => $countQuery->count(),
+            'pageSize' => 5,
+            'pageSizeParam' => false
+        ]);
+
+        //выводим список всех записей
+        $tasks = $tasksQuery->offset($pages->offset)
+            ->limit($pages->limit)
             ->all();
 
 
-        return $this->render('index.php', ['tasks' => $tasks]);
+        return $this->render('index.php', [
+            'models' => $tasks,
+            'task' => $task,
+            'categories' => $categories,
+            'pages' => $pages
+        ]);
     }
 }
